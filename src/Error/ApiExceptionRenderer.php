@@ -78,12 +78,12 @@ class ApiExceptionRenderer extends ExceptionRenderer
     {
         $response = $this->_getController()->response;
         $code = $this->_code($exception);
-        $response->statusCode($this->_code($exception));
+        $response->getStatusCode($this->_code($exception));
 
         Configure::write('apiExceptionMessage', $exception->getMessage());
 
         $responseFormat = $this->_getController()->responseFormat;
-        $body = [
+        $responseData = [
             $responseFormat['statusKey'] => !empty($options['responseStatus']) ? $options['responseStatus'] : $responseFormat['statusNokText'],
             $responseFormat['resultKey'] => [
                 $responseFormat['errorKey'] => ($code < 500) ? 'Not Found' : 'An Internal Error Has Occurred.',
@@ -91,15 +91,17 @@ class ApiExceptionRenderer extends ExceptionRenderer
         ];
 
         if ((isset($options['customMessage']) && $options['customMessage']) || Configure::read('ApiRequest.debug')) {
-            $body[$responseFormat['resultKey']][$responseFormat['errorKey']] = $exception->getMessage();
+            $responseData[$responseFormat['resultKey']][$responseFormat['errorKey']] = $exception->getMessage();
         }
 
         if ('xml' === Configure::read('ApiRequest.responseType')) {
-            $response->type('xml');
-            $response->body(Xml::fromArray([Configure::read('ApiRequest.xmlResponseRootNode') => $body], 'tags')->asXML());
+            $body = $response->getBody();
+            $body->write(Xml::fromArray([Configure::read('ApiRequest.xmlResponseRootNode') => $responseData], 'tags')->asXML());
+            $response->withBody($body);
         } else {
-            $response->type('json');
-            $response->body(json_encode($body));
+            $body = $response->getBody();
+            $body->write(json_encode($responseData));
+            $response->withBody($body);
         }
 
         $this->controller->response = $response;

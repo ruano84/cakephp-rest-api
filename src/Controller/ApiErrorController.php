@@ -21,9 +21,9 @@ class ApiErrorController extends AppController
      */
     public function beforeRender(Event $event)
     {
-        $this->httpStatusCode = $this->response->statusCode();
+        $this->httpStatusCode = $this->response->getStatusCode();
 
-        $messageArr = $this->response->httpCodes($this->httpStatusCode);
+        $messageArr = $this->response->withStatus($this->httpStatusCode);
 
         if (Configure::read('ApiRequest.debug') && isset($this->viewVars['error'])) {
             $this->apiResponse[$this->responseFormat['messageKey']] = $this->viewVars['error']->getMessage();
@@ -35,7 +35,7 @@ class ApiErrorController extends AppController
 
         parent::beforeRender($event);
 
-        $this->viewBuilder()->className('RestApi.ApiError');
+        $this->viewBuilder()->setClassName('RestApi.ApiError');
 
         return null;
     }

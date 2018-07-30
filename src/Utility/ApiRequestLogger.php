@@ -26,14 +26,14 @@ class ApiRequestLogger
         try {
             $apiRequests = TableRegistry::get('RestApi.ApiRequests');
             $entityData = [
-                'http_method' => $request->method(),
-                'endpoint' => $request->here(),
+                'http_method' => $request->getMethod(),
+                'endpoint' => $request->getRequestTarget(),
                 'token' => Configure::read('accessToken'),
                 'ip_address' => $request->clientIp(),
-                'request_data' => json_encode($request->data),
-                'response_code' => $response->statusCode(),
+                'request_data' => json_encode($request->getData()),
+                'response_code' => $response->getStatusCode(),
                 'response_type' => Configure::read('ApiRequest.responseType'),
-                'response_data' => $response->body(),
+                'response_data' => $response->getBody(),
                 'exception' => Configure::read('apiExceptionMessage'),
             ];
             $entity = $apiRequests->newEntity($entityData);

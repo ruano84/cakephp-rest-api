@@ -31,10 +31,10 @@ class ApiErrorView extends View
         parent::initialize();
 
         if ('xml' === Configure::read('ApiRequest.responseType')) {
-            $this->response->type('xml');
+            $this->response->withType('xml');
             $this->_responseLayout = 'xml_error';
         } else {
-            $this->response->type('json');
+            $this->response->withType('json');
         }
     }
 

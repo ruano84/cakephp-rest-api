@@ -3,7 +3,7 @@
     "description": "CakePHP 3 plugin to provide basic support for building REST API services",
     "keywords": ["cakephp", "rest", "api"],
     "type": "cakephp-plugin",
-    "homepage": "https://github.com/multidots/cakephp-rest-api",
+    "homepage": "https://github.com/cakephp/debug_kit",
     "license": "MIT",
     "authors": [
         {
@@ -22,7 +22,7 @@
     },
     "require": {
         "php": ">=5.6.0",
-        "cakephp/cakephp": "^3.4.0",
+        "cakephp/cakephp": "3.*",
         "firebase/php-jwt": "^4.0"
     },
     "require-dev": {

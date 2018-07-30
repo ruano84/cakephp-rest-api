@@ -47,17 +47,17 @@ class ApiRequestHandler implements EventListenerInterface
     {
         $this->buildResponse($event);
         Configure::write('requestLogged', false);
-        $request = $event->data['request'];
-        if ('OPTIONS' === $request->method()) {
+        $request = $event->getData()['request'];
+        if ('OPTIONS' === $request->getMethod()) {
             $event->stopPropagation();
-            $response = $event->data['response'];
-            $response->statusCode(200);
+            $response = $event->getData()['response'];
+            $response->getStatusCode(200);
 
             return $response;
         }
 
-        if (empty($request->data)) {
-            $request->data = $request->input('json_decode', true);
+        if (empty($request->getData())) {
+//            $request->data = $request->input('json_decode', true);
         }
     }
 
@@ -78,22 +78,22 @@ class ApiRequestHandler implements EventListenerInterface
      */
     public function shutdown(Event $event)
     {
-        $request = $event->subject()->request;
-        if ('OPTIONS' === $request->method()) {
+        $request = $event->getSubject()->request;
+        if ('OPTIONS' === $request->getMethod()) {
             return;
         }
 
         if (!Configure::read('requestLogged') && Configure::read('ApiRequest.log')) {
             if (Configure::read('ApiRequest.logOnlyErrors')) {
-                $responseCode = $event->subject()->httpStatusCode;
+                $responseCode = $event->getSubject()->httpStatusCode;
                 $logOnlyErrorCodes = Configure::read('ApiRequest.logOnlyErrorCodes');
                 if (empty($logOnlyErrorCodes) && $responseCode !== 200) {
-                    ApiRequestLogger::log($request, $event->subject()->response);
+                    ApiRequestLogger::log($request, $event->getSubject()->response);
                 } elseif (in_array($responseCode, $logOnlyErrorCodes)) {
-                    ApiRequestLogger::log($request, $event->subject()->response);
+                    ApiRequestLogger::log($request, $event->getSubject()->response);
                 }
             } else {
-                ApiRequestLogger::log($request, $event->subject()->response);
+                ApiRequestLogger::log($request, $event->getSubject()->response);
             }
         }
     }
@@ -107,22 +107,22 @@ class ApiRequestHandler implements EventListenerInterface
      */
     private function buildResponse(Event $event)
     {
-        $request = $event->data['request'];
-        $response = $event->data['response'];
+        $request = $event->getData()['request'];
+        $response = $event->getData()['response'];
 
         if ('xml' === Configure::read('ApiRequest.responseType')) {
-            $response->type('xml');
+            $response->withType('xml');
         } else {
-            $response->type('json');
+            $response->withType('json');
         }
 
         $response->cors($request)
-            ->allowOrigin(Configure::read('ApiRequest.cors.origin'))
-            ->allowMethods(Configure::read('ApiRequest.cors.allowedMethods'))
-            ->allowHeaders(Configure::read('ApiRequest.cors.allowedHeaders'))
-            ->allowCredentials()
-            ->maxAge(Configure::read('ApiRequest.cors.maxAge'))
-            ->build();
+                ->allowOrigin(Configure::read('ApiRequest.cors.origin'))
+                ->allowMethods(Configure::read('ApiRequest.cors.allowedMethods'))
+                ->allowHeaders(Configure::read('ApiRequest.cors.allowedHeaders'))
+                ->allowCredentials()
+                ->maxAge(Configure::read('ApiRequest.cors.maxAge'))
+                ->build();
 
         return true;
     }
